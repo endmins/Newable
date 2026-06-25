@@ -8,27 +8,47 @@ const client = new Client({
 const TOKEN = process.env.TOKEN;
 const WEBHOOK_URL = process.env.WEBHOOK_URL;
 
-const Waiter = [
-    "Hello Bro",
-    "Lại thêm một ông nữa, vô bàn đi!",
-    "Chào, uống gì gọi nhé.",
-    "Bia đây, nhạc đây, quẩy thôi!",
-    "Vào rồi đấy à? Ngồi đi.",
-    "Starry Bar chào nhé, đừng làm ồn quá là được.",
-    "Đến đúng lúc lắm, đang có nhạc hay.",
-    "Nhạc lên, ngồi xuống, chill thôi."
+// Danh sách câu chào "Bocchi style"
+const BocchiWaiter = [
+    "A... a... chào ạ! M-mời vào ạ...",
+    "E-em... em phục vụ nước ở đây nhé... đừng nhìn em...",
+    "Chào... mừng... mong quý khách đừng làm ồn ạ...",
+    "K-không biết có làm gì sai không... m-mời ngồi ạ...",
+    "STARRY... chào... dạ em hơi run...",
+    "V-vâng, chào ạ... gọi món thì... gọi em nhé...",
+    "Nhạc... nhạc đang lên đấy ạ... m-mời vào ạ...",
+    "E-em là nhân viên mới... chào ạ..."
+];
+
+// Trạng thái của Squad
+const squadStatuses = [
+    "Kessoku Band đang tập luyện...",
+    "Bocchi đang trốn trong thùng carton...",
+    "Nijika đang quản lý Starry...",
+    "Ryo đang tìm tiền mua bass...",
+    "Kita đang chụp ảnh sống ảo..."
 ];
 
 const bandColors = [0xFF9AA2, 0xFFE082, 0x82B1FF, 0xFF8A80];
 
 client.on('ready', () => {
     console.log(`[READY] Starry Bar đã mở cửa: ${client.user.tag}`);
+    
+    // Đổi status mỗi 3 tiếng
+    setInterval(() => {
+        const randomStatus = squadStatuses[Math.floor(Math.random() * squadStatuses.length)];
+        client.user.setActivity(randomStatus, { type: 'PLAYING' });
+        console.log(`[STATUS] Đã đổi thành: ${randomStatus}`);
+    }, 3 * 60 * 60 * 1000); 
+
+    // Status ban đầu
+    client.user.setActivity("Starry Bar chào khách!", { type: 'PLAYING' });
 });
 
 client.on('voiceStateUpdate', async (oldState, newState) => {
     if (!oldState.channelId && newState.channelId && !newState.member.user.bot) {
         
-        const randomGreeting = Waiter[Math.floor(Math.random() * Waiter.length)];
+        const randomGreeting = BocchiWaiter[Math.floor(Math.random() * BocchiWaiter.length)];
         const randomColor = bandColors[Math.floor(Math.random() * bandColors.length)];
 
         try {
@@ -39,17 +59,14 @@ client.on('voiceStateUpdate', async (oldState, newState) => {
                     username: 'Bocchi Waiter',
                     avatarURL: 'https://i.ibb.co/LDYLdxzc/282817-panickedno.gif',
                     embeds: [{
-                        author: { name: 'Bocchi Waiter', icon_url: 'https://i.ibb.co/LDYLdxzc/282817-panickedno.gif' },
-                        description: `**${newState.member.displayName}**\n${randomGreeting}`,
+                        author: { 
+                            name: 'Hitori Gotoh (Bocchi) - Starry Bar', 
+                            icon_url: 'https://i.ibb.co/LDYLdxzc/282817-panickedno.gif' 
+                        },
+                        description: `**${newState.member.displayName}**\n\n*${randomGreeting}*`,
                         image: { url: 'https://images.steamusercontent.com/ugc/2462978499899794420/31183CA7507D6DFB6845952964B1262E55E58DDA/?imw=637&imh=358&ima=fit&impolicy=Letterbox&imcolor=%23000000&letterbox=true' },
-                        color: randomColor
-                    }],
-                    components: [{
-                        type: 1,
-                        components: [
-                            { type: 2, style: 2, label: "Gọi đồ uống", custom_id: "order_drink" },
-                            { type: 2, style: 5, label: "Menu Nhạc", url: "https://www.google.com" }
-                        ]
+                        color: randomColor,
+                        footer: { text: '...b-bocchi' }
                     }]
                 })
             });
