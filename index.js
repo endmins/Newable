@@ -115,59 +115,17 @@ function rotateJoke() { const j = BocchiJokes[jokeIndex]; jokeIndex = (jokeIndex
 async function notifyOwner(content) { try { const owner = await client.users.fetch(OWNER_ID); await owner.send(content); } catch (err) { console.error('[NOTIFY] Lỗi:', err.message); } }
 
 /* ===================================================================
-   BUILD COMPONENTS (Fix triệt để bằng cấu trúc JSON)
+/* ===================================================================
+   BUILD COMPONENTS (Chỉ dùng gạch ngang để trang trí)
    =================================================================== */
 function buildComponents() {
-    // Chúng ta định nghĩa các thành phần dưới dạng Object (JSON)
-    // Cách này không cần gọi constructor nên không bao giờ bị lỗi "not a constructor"
-    
-    const selectMenuData = {
-        type: 3, // Loại Select Menu
-        custom_id: 'starry_menu',
-        placeholder: 'Chọn dịch vụ bên dưới...',
-        min_values: 1,
-        max_values: 1,
-        options: [
-            { label: 'Đặt đồ (Order)', description: 'Gọi món và đặt đồ uống tại Starry', value: 'order_option' },
-            { label: 'Press to Kita Meow', description: 'Nhấn để nghe Kita meow~ meow~!', value: 'kita_meow' },
-            { label: 'Gọi Bocchi ra đàn', description: 'Yêu cầu Bocchi chơi guitar', value: 'bocchi_play' },
-            { label: 'Starry Special Drink', description: 'Đồ uống đặc biệt của quán', value: 'special_drink' }
-        ]
-    };
-
-    // Tạo ActionRow (cái này thường vẫn dùng được class)
-    // Nếu vẫn lỗi class, ní xóa luôn mấy chữ 'new MessageActionRow' đi và để nguyên object
-    const selectRow = new MessageActionRow().addComponents(selectMenuData);
-
-    const buttonRow1 = new MessageActionRow().addComponents(
-        new MessageButton().setLabel('Order').setStyle('LINK').setURL(WIDEKITA_URL),
-        new MessageButton().setLabel('Kita Meow').setStyle('LINK').setURL(WIDEKITA_URL),
-        new MessageButton().setLabel('Menu Nhạc').setStyle('LINK').setURL(WIDEKITA_URL),
-        new MessageButton().setLabel('Special').setStyle('LINK').setURL(WIDEKITA_URL),
-        new MessageButton().setLabel('Fanpage').setStyle('LINK').setURL(WIDEKITA_URL)
-    );
-
-    const buttonRow2 = new MessageActionRow().addComponents(
-        new MessageButton().setLabel('Instagram Kita').setStyle('LINK').setURL(WIDEKITA_URL),
-        new MessageButton().setLabel('Kessoku Fanclub').setStyle('LINK').setURL(WIDEKITA_URL),
-        new MessageButton().setLabel('Chat với Bocchi').setStyle('LINK').setURL(WIDEKITA_URL),
-        new MessageButton().setLabel('Bocchi Corner').setStyle('LINK').setURL(WIDEKITA_URL)
-    );
-
-    return [selectRow, buttonRow1, buttonRow2];
+    // Không còn nút bấm, trả về mảng rỗng hoặc để trống
+    return [];
 }
 
-
-function buildEmbed(memberDisplayName) {
-    return new MessageEmbed()
-        .setAuthor({ name: 'Hitori Gotoh (Bocchi) - Starry Bar', icon_url: 'https://i.ibb.co/LDYLdxzc/282817-panickedno.gif', url: WIDEKITA_URL })
-        .setDescription(`**${memberDisplayName}** vừa đẩy cửa bước vào...\n\n_${BocchiWaiter[Math.floor(Math.random() * BocchiWaiter.length)]}_\n\n────────────────────────────\n**Bocchi Corner**:\n_${rotateJoke()}_\n────────────────────────────\n\nChọn dịch vụ bên dưới!`)
-        .setImage('https://images.steamusercontent.com/ugc/2462978499899794420/31183CA7507D6DFB6845952964B1262E55E58DDA/?imw=637&imh=358&ima=fit&impolicy=Letterbox&imcolor=%23000000&letterbox=true')
-        .setColor(bandColors[Math.floor(Math.random() * bandColors.length)])
-        .setFooter({ text: rotateSquad(), iconURL: 'https://i.ibb.co/LDYLdxzc/282817-panickedno.gif' })
-        .setTimestamp();
-}
-
+/* ===================================================================
+   CẬP NHẬT LẠI HÀM SENDWEBHOOK
+   =================================================================== */
 async function sendWebhook(memberDisplayName) {
     try {
         await fetch(WEBHOOK_URL, {
@@ -176,12 +134,13 @@ async function sendWebhook(memberDisplayName) {
             body: JSON.stringify({
                 username: 'Bocchi Waiter - Starry',
                 avatar_url: 'https://i.ibb.co/LDYLdxzc/282817-panickedno.gif',
-                embeds: [buildEmbed(memberDisplayName)],
-                components: buildComponents()
+                embeds: [buildEmbed(memberDisplayName)]
+                // Đã bỏ thuộc tính components vì không còn dùng nút nữa
             })
         });
     } catch (err) { await notifyOwner('[LỖI WEBHOOK] ' + err.message); }
 }
+
 
 client.on('ready', () => {
     console.log('[READY] Bocchi Waiter đã sẵn sàng: ' + client.user.tag);
