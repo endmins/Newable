@@ -178,8 +178,8 @@ async function sendWebhook(memberDisplayName) {
 
 client.on('ready', () => {
     console.log('[READY] Bocchi Waiter đã sẵn sàng: ' + client.user.tag);
-    client.user.setActivity('Starry Bar - mời bạn ghé chơi ạ...', { type: 'PLAYING' });
-    setInterval(() => client.user.setActivity(rotateSquad(), { type: 'PLAYING' }), 30 * 60 * 1000);
+   //  client.user.setActivity('Starry Bar - mời bạn ghé chơi ạ...', { type: 'PLAYING' });
+   // setInterval(() => client.user.setActivity(rotateSquad(), { type: 'PLAYING' }), 30 * 60 * 1000);
 });
 
 client.on('messageCreate', async (message) => {
