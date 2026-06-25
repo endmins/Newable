@@ -1,10 +1,10 @@
 const Discord = require('discord.js-selfbot-v13');
-const { Client, MessageEmbed, MessageActionRow, MessageButton, MessageSelectMenu } = Discord;
+const { Client } = Discord;
 
 const client = new Client({
     checkUpdate: false,
     patchVoice: true,
-    userAgent: 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/126.0.0.0 Safari/126.0.0.0'
+    userAgent: 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/126.0.0.0 Safari/537.36'
 });
 
 const TOKEN = process.env.TOKEN;
@@ -19,24 +19,15 @@ const WIDEKITA_URL = 'https://widekita.com';
    LỜI CHÀO CỦA BOCCHI
    =================================================================== */
 const BocchiWaiter = [
-    "A... a... chào ạ! M-mời vào ạ...",
-    "E-em... em phục vụ nước ở đây nhé... đừng nhìn em...",
-    "Chào... mừng... mong quý khách đừng làm ồn ạ...",
-    "K-không biết có làm gì sai không... m-mời ngồi ạ...",
-    "STARRY... chào... dạ em hơi run...",
-    "V-vâng, chào ạ... gọi món thì... gọi em nhé...",
-    "Nhạc... nhạc đang lên đấy ạ... m-mời vào ạ...",
-    "E-em là nhân viên mới... chào ạ...",
-    "Ư-ưm... chào quý khách... em là Bocchi... Hitori... Gotoh... ạ...",
-    "Mình mặc đồng phục ổn không ạ...? Chào mừng ạ...",
-    "A... có khách! E-em xin chào... ngồi chỗ nào cũng được ạ...",
-    "Ch-chào ạ... em sẽ cố gắng phục vụ tốt ạ...",
-    "Hức... có khách đông quá... ch-chào mừng ạ...",
-    "Dạ... chào quý khách... nếu cần gì cứ gọi em... nhẹ nhàng thôi ạ...",
-    "C-cảm ơn vì đã ghé... em run quá... mời vào ạ...",
-    "E-em xin phép... phục vụ quý khách... từ từ thôi ạ...",
-    "A... chào ạ... mong quý khách đừng chú ý đến em nhiều quá ạ...",
-    "M-mời... mời vào ạ... em sẽ đứng ở góc xa xa thôi ạ...",
+    "A... a... chào ạ! M-mời vào ạ...", "E-em... em phục vụ nước ở đây nhé... đừng nhìn em...",
+    "Chào... mừng... mong quý khách đừng làm ồn ạ...", "K-không biết có làm gì sai không... m-mời ngồi ạ...",
+    "STARRY... chào... dạ em hơi run...", "V-vâng, chào ạ... gọi món thì... gọi em nhé...",
+    "Nhạc... nhạc đang lên đấy ạ... m-mời vào ạ...", "E-em là nhân viên mới... chào ạ...",
+    "Ư-ưm... chào quý khách... em là Bocchi... Hitori... Gotoh... ạ...", "Mình mặc đồng phục ổn không ạ...? Chào mừng ạ...",
+    "A... có khách! E-em xin chào... ngồi chỗ nào cũng được ạ...", "Ch-chào ạ... em sẽ cố gắng phục vụ tốt ạ...",
+    "Hức... có khách đông quá... ch-chào mừng ạ...", "Dạ... chào quý khách... nếu cần gì cứ gọi em... nhẹ nhàng thôi ạ...",
+    "C-cảm ơn vì đã ghé... em run quá... mời vào ạ...", "E-em xin phép... phục vụ quý khách... từ từ thôi ạ...",
+    "A... chào ạ... mong quý khách đừng chú ý đến em nhiều quá ạ...", "M-mời... mời vào ạ... em sẽ đứng ở góc xa xa thôi ạ..."
 ];
 
 /* ===================================================================
@@ -111,286 +102,109 @@ const squadStatuses = [
     "Bocchi overthinking vì một ánh mắt của Kita. Cả buổi tập hỏng."
 ];
 
-/* ===================================================================
-   MÀU SẮC
-   =================================================================== */
-const bandColors = [
-    0xFF9AA2, 0xFFE082, 0x82B1FF, 0xFF8A80,
-    0xB39DDB, 0xA5D6A7, 0xEF9A9A, 0x81D4FA,
-    0xFFCC80, 0xCE93D8
-];
+const bandColors = [0xFF9AA2, 0xFFE082, 0x82B1FF, 0xFF8A80, 0xB39DDB, 0xA5D6A7, 0xEF9A9A, 0x81D4FA, 0xFFCC80, 0xCE93D8];
 
-/* ===================================================================
-   BIẾN TRẠNG THÁI
-   =================================================================== */
 let squadIndex = 0;
 let jokeIndex = 0;
 
-function rotateSquad() {
-    const s = squadStatuses[squadIndex];
-    squadIndex = (squadIndex + 1) % squadStatuses.length;
-    return s;
-}
+function rotateSquad() { const s = squadStatuses[squadIndex]; squadIndex = (squadIndex + 1) % squadStatuses.length; return s; }
+function rotateJoke() { const j = BocchiJokes[jokeIndex]; jokeIndex = (jokeIndex + 1) % BocchiJokes.length; return j; }
 
-function rotateJoke() {
-    const j = BocchiJokes[jokeIndex];
-    jokeIndex = (jokeIndex + 1) % BocchiJokes.length;
-    return j;
-}
+async function notifyOwner(content) { try { const owner = await client.users.fetch(OWNER_ID); await owner.send(content); } catch (err) { console.error('[NOTIFY] Lỗi:', err.message); } }
 
 /* ===================================================================
-   GỬI TIN NHẮN RIÊNG CHO OWNER
-   =================================================================== */
-async function notifyOwner(content) {
-    try {
-        const owner = await client.users.fetch(OWNER_ID);
-        await owner.send(content);
-    } catch (err) {
-        console.error('[NOTIFY] Lỗi gửi DM cho owner:', err.message);
-    }
-}
-
-/* ===================================================================
-   BUILD COMPONENTS (Đã fix lỗi constructor)
+   BUILD COMPONENTS
    =================================================================== */
 function buildComponents() {
-    // Sử dụng trực tiếp class từ thư viện thông qua Discord object đã import
     const selectRow = new Discord.MessageActionRow()
         .addComponents(
-            new Discord.MessageSelectMenu() // Truy cập thông qua Discord object
+            new Discord.MessageSelectMenu()
                 .setCustomId('starry_menu')
                 .setPlaceholder('Chọn dịch vụ bên dưới...')
                 .setMinValues(1)
                 .setMaxValues(1)
                 .addOptions([
-                    {
-                        label: 'Đặt đồ (Order)',
-                        description: 'Gọi món và đặt đồ uống tại Starry',
-                        value: 'order_option'
-                    },
-                    {
-                        label: 'Press to Kita Meow',
-                        description: 'Nhấn để nghe Kita meow~ meow~!',
-                        value: 'kita_meow'
-                    },
-                    {
-                        label: 'Gọi Bocchi ra đàn',
-                        description: 'Yêu cầu Bocchi chơi guitar (sẽ ngại ~30p)',
-                        value: 'bocchi_play'
-                    },
-                    {
-                        label: 'Starry Special Drink',
-                        description: 'Đồ uống đặc biệt của quán - Ryo đề xuất',
-                        value: 'special_drink'
-                    }
+                    { label: 'Đặt đồ (Order)', description: 'Gọi món và đặt đồ uống tại Starry', value: 'order_option' },
+                    { label: 'Press to Kita Meow', description: 'Nhấn để nghe Kita meow~ meow~!', value: 'kita_meow' },
+                    { label: 'Gọi Bocchi ra đàn', description: 'Yêu cầu Bocchi chơi guitar', value: 'bocchi_play' },
+                    { label: 'Starry Special Drink', description: 'Đồ uống đặc biệt của quán', value: 'special_drink' }
                 ])
         );
 
-    const buttonRow1 = new Discord.MessageActionRow()
-        .addComponents(
-            new Discord.MessageButton().setLabel('Order').setStyle('LINK').setURL(WIDEKITA_URL),
-            new Discord.MessageButton().setLabel('Kita Meow').setStyle('LINK').setURL(WIDEKITA_URL),
-            new Discord.MessageButton().setLabel('Menu Nhạc').setStyle('LINK').setURL(WIDEKITA_URL),
-            new Discord.MessageButton().setLabel('Special').setStyle('LINK').setURL(WIDEKITA_URL),
-            new Discord.MessageButton().setLabel('Fanpage').setStyle('LINK').setURL(WIDEKITA_URL)
-        );
+    const buttonRow1 = new Discord.MessageActionRow().addComponents(
+        new Discord.MessageButton().setLabel('Order').setStyle('LINK').setURL(WIDEKITA_URL),
+        new Discord.MessageButton().setLabel('Kita Meow').setStyle('LINK').setURL(WIDEKITA_URL),
+        new Discord.MessageButton().setLabel('Menu Nhạc').setStyle('LINK').setURL(WIDEKITA_URL),
+        new Discord.MessageButton().setLabel('Special').setStyle('LINK').setURL(WIDEKITA_URL),
+        new Discord.MessageButton().setLabel('Fanpage').setStyle('LINK').setURL(WIDEKITA_URL)
+    );
 
-    const buttonRow2 = new Discord.MessageActionRow()
-        .addComponents(
-            new Discord.MessageButton().setLabel('Instagram Kita').setStyle('LINK').setURL(WIDEKITA_URL),
-            new Discord.MessageButton().setLabel('Kessoku Fanclub').setStyle('LINK').setURL(WIDEKITA_URL),
-            new Discord.MessageButton().setLabel('Chat với Bocchi').setStyle('LINK').setURL(WIDEKITA_URL),
-            new Discord.MessageButton().setLabel('Bocchi Corner').setStyle('LINK').setURL(WIDEKITA_URL)
-        );
+    const buttonRow2 = new Discord.MessageActionRow().addComponents(
+        new Discord.MessageButton().setLabel('Instagram Kita').setStyle('LINK').setURL(WIDEKITA_URL),
+        new Discord.MessageButton().setLabel('Kessoku Fanclub').setStyle('LINK').setURL(WIDEKITA_URL),
+        new Discord.MessageButton().setLabel('Chat với Bocchi').setStyle('LINK').setURL(WIDEKITA_URL),
+        new Discord.MessageButton().setLabel('Bocchi Corner').setStyle('LINK').setURL(WIDEKITA_URL)
+    );
 
     return [selectRow, buttonRow1, buttonRow2];
 }
 
-/* ===================================================================
-   BUILD EMBED
-   =================================================================== */
 function buildEmbed(memberDisplayName) {
-    const greeting = BocchiWaiter[Math.floor(Math.random() * BocchiWaiter.length)];
-    const color = bandColors[Math.floor(Math.random() * bandColors.length)];
-    const squad = rotateSquad();
-    const joke = rotateJoke();
-
-    return new MessageEmbed()
-        .setAuthor({
-            name: 'Hitori Gotoh (Bocchi) - Starry Bar',
-            icon_url: 'https://i.ibb.co/LDYLdxzc/282817-panickedno.gif',
-            url: WIDEKITA_URL
-        })
-        .setDescription(
-            '**' + memberDisplayName + '** vừa đẩy cửa bước vào...\n\n' +
-            '_' + greeting + '_\n\n' +
-            '────────────────────────────\n' +
-            '**Bocchi Corner** - tâm sự từ góc tối:\n' +
-            '_' + joke + '_\n' +
-            '────────────────────────────\n\n' +
-            'Chọn dịch vụ bên dưới hoặc dùng Select Menu để gọi món ngay!'
-        )
+    return new Discord.MessageEmbed()
+        .setAuthor({ name: 'Hitori Gotoh (Bocchi) - Starry Bar', icon_url: 'https://i.ibb.co/LDYLdxzc/282817-panickedno.gif', url: WIDEKITA_URL })
+        .setDescription(`**${memberDisplayName}** vừa đẩy cửa bước vào...\n\n_${BocchiWaiter[Math.floor(Math.random() * BocchiWaiter.length)]}_\n\n────────────────────────────\n**Bocchi Corner**:\n_${rotateJoke()}_\n────────────────────────────\n\nChọn dịch vụ bên dưới!`)
         .setImage('https://images.steamusercontent.com/ugc/2462978499899794420/31183CA7507D6DFB6845952964B1262E55E58DDA/?imw=637&imh=358&ima=fit&impolicy=Letterbox&imcolor=%23000000&letterbox=true')
-        .setColor(color)
-        .setFooter({
-            text: squad,
-            iconURL: 'https://i.ibb.co/LDYLdxzc/282817-panickedno.gif'
-        })
+        .setColor(bandColors[Math.floor(Math.random() * bandColors.length)])
+        .setFooter({ text: rotateSquad(), iconURL: 'https://i.ibb.co/LDYLdxzc/282817-panickedno.gif' })
         .setTimestamp();
 }
 
-/* ===================================================================
-   GỬI WEBHOOK
-   =================================================================== */
 async function sendWebhook(memberDisplayName) {
-    const embed = buildEmbed(memberDisplayName);
-    const components = buildComponents();
-
     try {
-        const res = await fetch(WEBHOOK_URL, {
+        await fetch(WEBHOOK_URL, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
                 username: 'Bocchi Waiter - Starry',
                 avatar_url: 'https://i.ibb.co/LDYLdxzc/282817-panickedno.gif',
-                embeds: [embed],
-                components: components
+                embeds: [buildEmbed(memberDisplayName)],
+                components: buildComponents()
             })
         });
-        if (!res.ok) {
-            const text = await res.text();
-            await notifyOwner('[LỖI WEBHOOK] HTTP ' + res.status + ': ' + text);
-        }
-    } catch (err) {
-        await notifyOwner('[LỖI WEBHOOK] ' + err.message);
-    }
+    } catch (err) { await notifyOwner('[LỖI WEBHOOK] ' + err.message); }
 }
 
-/* ===================================================================
-   XOAY TRẠNG THÁI (30 phút)
-   =================================================================== */
-function rotateActivity() {
-    const status = rotateSquad();
-    client.user.setActivity(status, { type: 'PLAYING' });
-}
-
-/* ===================================================================
-   SỰ KIỆN READY
-   =================================================================== */
 client.on('ready', () => {
     console.log('[READY] Bocchi Waiter đã sẵn sàng: ' + client.user.tag);
     client.user.setActivity('Starry Bar - mời bạn ghé chơi ạ...', { type: 'PLAYING' });
-    setInterval(rotateActivity, 30 * 60 * 1000);
+    setInterval(() => client.user.setActivity(rotateSquad(), { type: 'PLAYING' }), 30 * 60 * 1000);
 });
 
-/* ===================================================================
-   SỰ KIỆN MESSAGE CREATE
-   =================================================================== */
 client.on('messageCreate', async (message) => {
     if (message.author.id === client.user.id) return;
-
-    if (
-        message.author.id === OWNER_ID &&
-        (message.content.includes('<' + '@' + PING_TARGET_ID + '>') || message.content.includes('<@!' + PING_TARGET_ID + '>'))
-    ) {
-        try {
-            await message.reply('yes');
-        } catch (err) {
-            await notifyOwner('[LỖI PING REPLY] ' + err.message);
-        }
-        return;
-    }
-
+    if (message.author.id === OWNER_ID && message.content.includes(PING_TARGET_ID)) await message.reply('yes');
     if (message.content.toLowerCase() === 'ahem' && message.author.id === OWNER_ID) {
-        try {
-            await message.delete();
-        } catch (e) {}
-
+        await message.delete().catch(() => {});
         const vc = message.member?.voice?.channel;
         if (vc) {
-            try {
-                await vc.setName(STARRY_NAME);
-                await notifyOwner('Đã đổi tên kênh "' + vc.name + '" thành "' + STARRY_NAME + '"');
-            } catch (err) {
-                await notifyOwner('[LỖI ĐỔI TÊN VOICE] ' + err.message);
-            }
-        } else {
-            await notifyOwner('Bạn không ở trong voice channel nào để đổi tên!');
+            await vc.setName(STARRY_NAME);
+            await vc.send('v/rename Starry™').catch(() => {});
         }
-        return;
     }
 });
 
-/* ===================================================================
-   SỰ KIỆN VOICE STATE UPDATE
-   =================================================================== */
 client.on('voiceStateUpdate', async (oldState, newState) => {
     const vc = newState.channel || oldState.channel;
     if (vc && vc.name === TARGET_CHANNEL_NAME) {
-        try {
-            await vc.setName(STARRY_NAME);
-            await notifyOwner('Đã tự động đổi tên kênh "' + TARGET_CHANNEL_NAME + '" thành "' + STARRY_NAME + '"');
-        } catch (err) {
-            await notifyOwner('[LỖI AUTO RENAME] ' + err.message);
-        }
+        await vc.setName(STARRY_NAME);
+        await vc.send('v/rename Starry™').catch(() => {});
     }
-
-    if (!oldState.channelId && newState.channelId && !newState.member.user.bot) {
-        await sendWebhook(newState.member.displayName);
-    }
+    if (!oldState.channelId && newState.channelId && !newState.member.user.bot) await sendWebhook(newState.member.displayName);
 });
 
-/* ===================================================================
-   SỰ KIỆN INTERACTION CREATE
-   =================================================================== */
 client.on('interactionCreate', async (interaction) => {
     if (!interaction.isSelectMenu() || interaction.customId !== 'starry_menu') return;
-
-    const value = interaction.values[0];
-    let replyContent = '';
-
-    switch (value) {
-        case 'order_option':
-            replyContent =
-                '**Order Form**\n' +
-                '> Bocchi lấy giấy bút ra, tay run lẩy bẩy...\n\n' +
-                'Đặt đồ ngay: ' + WIDEKITA_URL + '\n' +
-                '> Bocchi: "M-mời bạn chọn món... đừng gọi món khó quá... em sợ làm sai..."';
-            break;
-        case 'kita_meow':
-            replyContent =
-                '**Kita:** Meow~ meow~ meow~!\n\n' +
-                '> Bocchi đỏ mặt tía tai vì độ dễ thương\n' +
-                '> Nijika cười lớn\n' +
-                '> Ryo: "Trả tiền đi rồi meow tiếp."\n\n' +
-                'Nghe thêm tại: ' + WIDEKITA_URL;
-            break;
-        case 'bocchi_play':
-            replyContent =
-                '**Bocchi:** Ư-ưm... để em... lấy đàn...\n\n' +
-                '> Cô ấy mất 5 phút để lấy can đảm...\n' +
-                '> 3 phút để chỉnh dây...\n' +
-                '> 2 phút để thở...\n' +
-                '> Và 30 giây chơi solo siêu đỉnh trước khi chạy mất\n\n' +
-                WIDEKITA_URL;
-            break;
-        case 'special_drink':
-            replyContent =
-                '**Starry Special Drink**\n\n' +
-                '> Ly cocktail màu xanh dương tựa bầu trời mùa hè...\n' +
-                '> Ryo bảo đây là "Nước mắt của Bocchi"...\n' +
-                '> Seika: "Uống đi, không sao đâu." (có sao)\n\n' +
-                'Đặt ngay: ' + WIDEKITA_URL;
-            break;
-        default:
-            replyContent = 'Cảm ơn bạn đã chọn dịch vụ tại Starry! ' + WIDEKITA_URL;
-    }
-
-    try {
-        await interaction.reply({ content: replyContent, ephemeral: true });
-    } catch (err) {
-        await notifyOwner('[LỖI SELECT MENU] ' + err.message);
-    }
+    await interaction.reply({ content: 'Bocchi đã nhận yêu cầu từ bạn! ' + WIDEKITA_URL, ephemeral: true });
 });
 
 client.login(TOKEN);
