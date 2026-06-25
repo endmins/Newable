@@ -37,7 +37,7 @@ client.on('voiceStateUpdate', async (oldState, newState) => {
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
                     username: 'Starry Bar',
-                    avatarURL: '',
+                    avatarURL: 'https://i.ibb.co/LDYLdxzc/282817-panickedno.gif',
                     embeds: [{
                         author: { name: 'Starry Bar | Live Session', icon_url: 'https://i.imgur.com/AfFp7pu.png' },
                         description: `**${newState.member.displayName}**\n${randomGreeting}`,
