@@ -1,37 +1,62 @@
-const { Client, GatewayIntentBits, WebhookClient } = require('discord.js');
-
-// Khởi tạo Client bot với quyền xem thành viên
-const client = new Client({ 
-    intents: [
-        GatewayIntentBits.Guilds, 
-        GatewayIntentBits.GuildMembers 
-    ] 
+const { Client } = require('discord.js-selfbot-v13');
+const client = new Client({
+    checkUpdate: false,
+    patchVoice: true,
+    userAgent: 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/126.0.0.0 Safari/537.36'
 });
 
-// Lấy thông tin từ Biến môi trường (Railway Variables)
-const webhookClient = new WebhookClient({ url: process.env.WEBHOOK_URL });
+const TOKEN = process.env.TOKEN;
+const WEBHOOK_URL = process.env.WEBHOOK_URL;
 
 const Waiter = [
-    "Chào mừng đến STARRY! Ngồi đâu tùy bạn nhé.",
-    "STARRY chào bạn! Tận hưởng nhạc sống nhé!",
-    "Konnichiwa! Chào mừng bạn đến với STARRY! ✨",
-    "Chào! Đừng làm đổ bia là được, vào bàn đi.",
-    "A... chào quý khách... chào mừng đến STARRY..."
+    "Vô kìa, nhạc đang lên!",
+    "Lại thêm một ông nữa, vô bàn đi!",
+    "Chào, uống gì gọi nhé.",
+    "Bia đây, nhạc đây, quẩy thôi!",
+    "Vào rồi đấy à? Ngồi đi.",
+    "Starry Bar chào nhé, đừng làm ồn quá là được.",
+    "Đến đúng lúc lắm, đang có nhạc hay.",
+    "Nhạc lên, ngồi xuống, chill thôi."
 ];
 
-client.once('ready', () => {
-    console.log(`[READY] Waiter STARRY đang phục vụ tại: ${client.user.tag}`);
+const bandColors = [0xFF9AA2, 0xFFE082, 0x82B1FF, 0xFF8A80];
+
+client.on('ready', () => {
+    console.log(`[READY] Starry Bar đã mở cửa: ${client.user.tag}`);
 });
 
-client.on('guildMemberAdd', member => {
-    const randomGreeting = Waiter[Math.floor(Math.random() * Waiter.length)];
-    
-    webhookClient.send({
-        content: `**[STARRY Waiter]:** ${randomGreeting} (Chào mừng ${member.user.toString()}!)`,
-        username: 'Waiter STARRY',
-        avatarURL: 'https://i.imgur.com/AfFp7pu.png'
-    }).catch(err => console.error("Webhook Error:", err));
+client.on('voiceStateUpdate', async (oldState, newState) => {
+    if (!oldState.channelId && newState.channelId && !newState.member.user.bot) {
+        
+        const randomGreeting = Waiter[Math.floor(Math.random() * Waiter.length)];
+        const randomColor = bandColors[Math.floor(Math.random() * bandColors.length)];
+
+        try {
+            await fetch(WEBHOOK_URL, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    username: 'Starry Bar',
+                    avatarURL: '',
+                    embeds: [{
+                        author: { name: 'Starry Bar | Live Session', icon_url: 'https://i.imgur.com/AfFp7pu.png' },
+                        description: `**${newState.member.displayName}**\n${randomGreeting}`,
+                        image: { url: 'https://images.steamusercontent.com/ugc/2462978499899794420/31183CA7507D6DFB6845952964B1262E55E58DDA/?imw=637&imh=358&ima=fit&impolicy=Letterbox&imcolor=%23000000&letterbox=true' },
+                        color: randomColor
+                    }],
+                    components: [{
+                        type: 1,
+                        components: [
+                            { type: 2, style: 2, label: "Gọi đồ uống", custom_id: "order_drink" },
+                            { type: 2, style: 5, label: "Menu Nhạc", url: "https://www.google.com" }
+                        ]
+                    }]
+                })
+            });
+        } catch (err) {
+            console.error("[ERROR] Webhook failed:", err);
+        }
+    }
 });
 
-// Đăng nhập bằng Token bảo mật
-client.login(process.env.BOT_TOKEN);
+client.login(TOKEN);
