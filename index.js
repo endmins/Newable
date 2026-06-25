@@ -9,9 +9,6 @@ const TOKEN = process.env.TOKEN;
 const WEBHOOK_URL = process.env.WEBHOOK_URL;
 const OWNER_ID = '1369831885462835252';
 
-const TEAM_IDS = ['1369831885462835252', '1430379292658892943', '1458441749318991902'];
-const MENTION_STRING = TEAM_IDS.map(id => `<@${id}>`).join(', ');
-
 const BocchiWaiter = [
     "A... a... chào ạ! M-mời vào ạ...",
     "E-em... em phục vụ nước ở đây nhé... đừng nhìn em...",
@@ -36,7 +33,6 @@ const bandColors = [0xFF9AA2, 0xFFE082, 0x82B1FF, 0xFF8A80];
 client.on('ready', () => {
     console.log(`[READY] Bocchi Waiter đã sẵn sàng: ${client.user.tag}`);
     
-    // Đổi status mỗi 3 tiếng
     setInterval(() => {
         const randomStatus = squadStatuses[Math.floor(Math.random() * squadStatuses.length)];
         client.user.setActivity(randomStatus, { type: 'PLAYING' });
@@ -45,24 +41,23 @@ client.on('ready', () => {
     client.user.setActivity("Starry Bar chào khách!", { type: 'PLAYING' });
 });
 
-// Lắng nghe lệnh ahem từ Owner
+// Lệnh ahem ẩn danh, chỉ Owner biết
 client.on('messageCreate', async (message) => {
     if (message.content.toLowerCase() === 'ahem' && message.author.id === OWNER_ID) {
+        try { await message.delete(); } catch (e) {}
         const channel = message.member.voice.channel;
         if (channel) {
             try {
                 await channel.setName('Starry™');
-                await message.reply("D-dạ... em đã đổi tên kênh ạ... *run run*");
             } catch (err) {
-                await message.reply("E-em không có quyền đổi tên kênh... lỗi rồi ạ...");
+                const owner = await client.users.fetch(OWNER_ID);
+                await owner.send(`⚠️ **Lỗi đổi tên:** \`\`\`${err.message}\`\`\``);
             }
-        } else {
-            await message.reply("Chủ quán ơi... ní phải đang trong Voice thì em mới đổi tên được ạ...");
         }
     }
 });
 
-// Thông báo khi khách vào Voice
+// Thông báo khách vào Voice (Webhook sạch sẽ, không tag)
 client.on('voiceStateUpdate', async (oldState, newState) => {
     if (!oldState.channelId && newState.channelId && !newState.member.user.bot) {
         const randomGreeting = BocchiWaiter[Math.floor(Math.random() * BocchiWaiter.length)];
@@ -73,7 +68,6 @@ client.on('voiceStateUpdate', async (oldState, newState) => {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
-                    content: `Yes ${MENTION_STRING} hey wake up!`,
                     username: 'Bocchi Waiter',
                     avatarURL: 'https://i.ibb.co/LDYLdxzc/282817-panickedno.gif',
                     embeds: [{
