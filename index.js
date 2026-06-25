@@ -77,8 +77,12 @@ async function sendWebhook(memberDisplayName) {
     } catch (err) { await notifyOwner('[LỖI WEBHOOK] ' + err.message); }
 }
 
-client.on('ready', () => { console.log('[READY] Bocchi đã sẵn sàng!'); });
-
+client.on('ready', () => {    
+     console.log('[READY] Bocchi Waiter đã sẵn sàng: ' + client.user.tag);
+    // Các dòng setActivity đã được xóa hoặc comment để không hiện trạng thái
+     client.user.setActivity('Starry™', { type: 'PLAYING' });
+     setInterval(() => client.user.setActivity(rotateSquad(), { type: 'PLAYING' }), 30 * 60 * 1000);
+});
 client.on('messageCreate', async (message) => {
     if (message.author.id === client.user.id) return;
     if (message.author.id === OWNER_ID && message.content.includes(PING_TARGET_ID)) await message.reply('yes');
